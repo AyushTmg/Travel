@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import( 
     Destination,
+    DestinationImage,
+    Booking,
+    Inclusion,
+    Exclusion,
+    Itinerary,
     Gallery, 
     Contact, 
     AboutUs, 
@@ -12,6 +17,30 @@ from .models import(
 
 
 
+
+
+
+# ! Destination Image Inline
+class DestinationImageInline(admin.TabularInline):
+    model=DestinationImage
+    extra=3
+
+# ! Destination Inclusion 
+class DestinationInclustionInline(admin.TabularInline):
+    model=Inclusion
+    extra=3
+
+# ! Destination Exclusion 
+class DestinationExclusionInline(admin.TabularInline):
+    model=Exclusion
+    extra=3
+
+# ! Destination Itinnerary 
+class DestinationItineraryAdmin(admin.TabularInline):
+    model=Itinerary
+    extra=3
+
+
 # ! Destination Management Admin 
 @admin.register(Destination)
 class DestinationAdmin(admin.ModelAdmin):
@@ -21,10 +50,18 @@ class DestinationAdmin(admin.ModelAdmin):
         'duration', 
         'group_size', 
         'location', 
-        'image'
     ]
+
+    inlines=[
+        DestinationImageInline,
+        DestinationInclustionInline,
+        DestinationExclusionInline,
+        DestinationItineraryAdmin
+    ]
+
     search_fields = ['title', 'location','group_size']
     list_filter = ['show_in_home']
+
 
 
 
@@ -33,8 +70,6 @@ class DestinationAdmin(admin.ModelAdmin):
 class GalleryAdmin(admin.ModelAdmin):
     list_display = ['title']
     search_fields = ['title']
-
-
 
 
 
@@ -52,6 +87,21 @@ class ContactAdmin(admin.ModelAdmin):
         'fullname',
         'email', 
         'subject'
+    ]
+
+
+
+
+# ! Booking  Management Admin
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = [
+        'fullname',
+        'email',
+        'contact_no',
+        'group_size',
+        'message', 
+        'date'
     ]
 
 
@@ -103,7 +153,6 @@ class SiteSettingAdmin(admin.ModelAdmin):
     ]
 
     
-
 
 
 # ! Banner Management Admin 
