@@ -1,10 +1,12 @@
 from .tasks import send_contact_mail_task
 from utils.response.response import CustomResponse as cr 
+from utils.exception.exception import CustomException as ce
 from .models import (
     Destination,
     Gallery,
     AboutUs,
     SiteSetting,
+    Booking,
     Banner,
     Testimonial,
     Blog,
@@ -20,13 +22,18 @@ from .serializers import (
     TestimonialListSerializer,
     BlogListSerializer,
     BlogDetailSerializer,
-    ContactSerializer
+    ContactSerializer,
+    BookingSerializer
 
 )
+from django.http import Http404 
 
 
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import (
+    HTTP_201_CREATED,
+    HTTP_404_NOT_FOUND
+)
 from rest_framework.generics import(
     ListAPIView,
     RetrieveAPIView,
@@ -43,6 +50,9 @@ class DestinationListView(ListAPIView):
 
 
     def list(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response 
+        """
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -72,12 +82,66 @@ class DestinationDetailView(RetrieveAPIView):
 
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response 
+        """
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return cr.success(
             data=serializer.data
         )
     
+    
+    def get_object(self):
+        """
+        Override get_object to handle non-existing objects
+        """
+        try:
+            return super().get_object()
+        except Http404:
+            raise ce(
+                message="Page Not found",
+                status=HTTP_404_NOT_FOUND
+            )
+    
+
+
+
+# ! Destination Booking View 
+class DestinationBookingView(CreateAPIView):
+    queryset=Booking.objects.all()
+    serializer_class=BookingSerializer
+
+
+    def create(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response  and 
+        custom exception and also passing seriaizer context
+        """
+        destination_pk=self.kwargs['pk']
+
+        try:
+            destination = Destination.objects.get(pk=destination_pk)
+        except Destination.DoesNotExist:
+            raise ce(
+                message="Destination You're trying to book doesn;t exits",
+                status=HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.get_serializer(
+            data=request.data,
+            context={
+            'destination_pk':destination_pk
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return cr.success(
+            status=HTTP_201_CREATED,
+            message="We have received your booking \n We will contact you soon "
+        )
+
 
 
 
@@ -88,6 +152,9 @@ class GalleryListView(ListAPIView):
 
 
     def list(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response 
+        """
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -152,6 +219,9 @@ class BannerListView(ListAPIView):
 
 
     def list(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response 
+        """
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -175,6 +245,9 @@ class TestimonialListView(ListAPIView):
 
 
     def list(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response 
+        """
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -198,6 +271,9 @@ class BlogListView(ListAPIView):
 
 
     def list(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response 
+        """
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -222,11 +298,27 @@ class BLogDetailView(RetrieveAPIView):
 
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Over riding the retrieve method for custom response 
+        """
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return cr.success(
             data=serializer.data
         )
+
+
+    def get_object(self):
+        """
+        Override get_object to handle non-existing objects
+        """
+        try:
+            return super().get_object()
+        except Http404:
+            raise ce(
+                message="Page Not found",
+                status=HTTP_404_NOT_FOUND
+            )
     
 
 
@@ -237,6 +329,10 @@ class ContactView(CreateAPIView):
     serializer_class=ContactSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Over riding the create method for custom response 
+        and calling celery task to send email
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

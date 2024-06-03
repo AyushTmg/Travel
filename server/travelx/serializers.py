@@ -247,8 +247,19 @@ class BookingSerializer(ModelSerializer):
         fields=[
             'id',
             'fullname',
+            'email',
             'contact_no',
             'group_size',
             'message',
-            'date'
+            'date',
         ]
+
+    def create(self, validated_data):
+        """
+        Over riding the create method 
+        """
+        destination_pk=self.context['destination_pk']
+        return Booking.objects.create(
+            destination_id=destination_pk,
+            **validated_data
+        )
