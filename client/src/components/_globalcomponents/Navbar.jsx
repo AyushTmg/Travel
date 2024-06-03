@@ -35,37 +35,9 @@ const Navbar = () => {
                   About
                 </a>
               </li>
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle"
-                  href="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  data-bs-auto-close="outside"
-                  aria-expanded="false"
-                >
-                  Tours <i className="ti-angle-down"></i>
-                </a>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="/tours-page" className="dropdown-item">
-                      <span>Tours 1</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="tours2.html" className="dropdown-item">
-                      <span>Tours 2</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="tours3.html" className="dropdown-item">
-                      <span>Tours 3</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
+
               <li className="nav-item">
-                <a className="nav-link" href="/destination-page">
+                <a className="nav-link" href="/tours-page">
                   Destinations
                 </a>
               </li>
@@ -74,53 +46,16 @@ const Navbar = () => {
                   Gallery
                 </a>
               </li>
-              <li className="nav-item dropdown">
+
+              <li className="nav-item ">
                 <a
-                  className="nav-link dropdown-toggle"
-                  href="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
+                  className="nav-link "
+                  href="/blog"
                   data-bs-auto-close="outside"
                   aria-expanded="false"
                 >
-                  Pages <i className="ti-angle-down"></i>
+                  Blog
                 </a>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="/tour-details" className="dropdown-item">
-                      <span>Tour Details</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/tour-search" className="dropdown-item">
-                      <span>Tour Search</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle"
-                  href="#"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  data-bs-auto-close="outside"
-                  aria-expanded="false"
-                >
-                  Blog <i className="ti-angle-down"></i>
-                </a>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="/blog-page" className="dropdown-item">
-                      <span>Blog 01</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="blog2.html" className="dropdown-item">
-                      <span>Blog 02</span>
-                    </a>
-                  </li>
-                </ul>
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="/contact">
