@@ -58,8 +58,9 @@ class Booking(models.Model):
     group_size = models.CharField(max_length=255)
     message = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
-    destinations = models.ManyToManyField(
+    destination = models.ForeignKey(
         Destination,
+        on_delete=models.PROTECT,
         related_name='bookings'
     )
 
