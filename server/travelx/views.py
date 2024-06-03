@@ -20,7 +20,7 @@ from .serializers import (
     TestimonialListSerializer,
     BlogListSerializer,
     BlogDetailSerializer,
-    ContactSerailizer
+    ContactSerializer
 
 )
 
@@ -38,7 +38,7 @@ from rest_framework.generics import(
 
 # ! Destination  List View 
 class DestinationListView(ListAPIView):
-    queryset=Destination.objects.all()
+    queryset=Destination.objects.all().prefetch_related('images')
     serializer_class=DestinationListSerializer
 
 
@@ -61,7 +61,12 @@ class DestinationListView(ListAPIView):
 
 #! Destination Detail View 
 class DestinationDetailView(RetrieveAPIView):
-    queryset=Destination.objects.all()
+    queryset=Destination.objects.all().prefetch_related(
+        'images',
+        'inclusions',
+        'exclusions',
+        'itineraries'
+        )
     serializer_class=DestinationDetailSerializer
     lookup_field='pk'
 
@@ -101,7 +106,7 @@ class GalleryListView(ListAPIView):
 
 # ! AboutUs View 
 class AboutUsView(APIView):
-    queryset = AboutUs.objects.first()  
+    # queryset = AboutUs.objects.first()  
     serializer_class = AboutUsSerializer
 
     def get(self,request):
@@ -121,7 +126,7 @@ class AboutUsView(APIView):
 
 # ! SiteSetting View 
 class SiteSettingView(APIView):
-    queryset=SiteSetting.objects.first()
+    # queryset=SiteSetting.objects.first()
     serializer_class=SiteSettingSerializer
 
 
@@ -229,7 +234,7 @@ class BLogDetailView(RetrieveAPIView):
 # !Contact View 
 class ContactView(CreateAPIView):
     queryset=Contact.objects.all()
-    serializer_class=ContactSerailizer
+    serializer_class=ContactSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
