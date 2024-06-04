@@ -1,5 +1,10 @@
 from .models import (
     Destination,
+    DestinationImage,
+    Inclusion,
+    Exclusion,
+    Itinerary,
+    Booking,
     Gallery,
     AboutUs,
     SiteSetting,
@@ -15,14 +20,70 @@ from rest_framework.serializers import ModelSerializer
 
 
 
+
+# ! Serializer For Destination Image 
+class DestinationImageSerializer(ModelSerializer):
+    class Meta:
+        model=DestinationImage
+        fields=[
+            'id',
+            'image'
+        ]
+
+
+
+
+# ! Serializer For Inclusion 
+class InclusionSerializer(ModelSerializer):
+    class Meta:
+        model=Inclusion
+        fields=[
+            'id',
+            'title',
+        ]
+
+
+
+
+# ! Serializer For Exclusion 
+class ExclusionSerializer(ModelSerializer):
+    class Meta:
+        model=Exclusion
+        fields=[
+            'id',
+            'title',
+        ]
+
+
+
+
+#! Serializer For Itinerary 
+class ItinerarySerializer(ModelSerializer):
+    class Meta:
+        model=Itinerary
+        fields=[
+            'id',
+            'title',
+            'description',
+            'day_number',
+        ]
+
+
+
+
 # !Serializer For Listing Destination 
 class DestinationListSerializer(ModelSerializer):
+    images=DestinationImageSerializer(many=True)
+
     class Meta:
         model=Destination
         fields=[
             'id',
             'title',
-            'image',
+            'images',
+            'duration',
+            'group_size',
+            'location',
         ]
 
 
@@ -30,18 +91,25 @@ class DestinationListSerializer(ModelSerializer):
 
 # !Serializer For Showing Destination Detail 
 class DestinationDetailSerializer(ModelSerializer):
+    images=DestinationImageSerializer(many=True)
+    inclusions=InclusionSerializer(many=True)
+    exclusions=ExclusionSerializer(many=True)
+    itineraries=ItinerarySerializer(many=True)
+
     class Meta:
         model=Destination
         fields=[
             'id',
             'title',
-            'image',
+            'images',
             'price',
             'description',
             'duration',
             'group_size',
             'location',
-            'show_in_home'
+            'inclusions',
+            'exclusions',
+            'itineraries'
         ]
 
 
@@ -97,7 +165,7 @@ class SiteSettingSerializer(ModelSerializer):
 
 
 # !Serializer For Listing Banner 
-class BannerListSerializer(ModelSerializer):
+class BannerSerializer(ModelSerializer):
     class Meta:
         model=Banner 
         fields=[
@@ -109,7 +177,7 @@ class BannerListSerializer(ModelSerializer):
 
 
 
-# ! Serailizer For Listing Testimonial
+# ! Serializer For Listing Testimonial
 class TestimonialListSerializer(ModelSerializer):
     class Meta:
         model=Testimonial
@@ -133,7 +201,6 @@ class BlogListSerializer(ModelSerializer):
             'title',
             'image',
             'date',
-            'show_in_home'
 
         ]
 
@@ -155,9 +222,8 @@ class BlogDetailSerializer(ModelSerializer):
 
 
 
-# ! Serailizer For Contact 
-class ContactSerailizer(ModelSerializer):       
-    date= serializers.DateField(read_only=True)
+# ! Serializer For Contact 
+class ContactSerializer(ModelSerializer):       
     class Meta:
         model=Contact
         fields=[
@@ -169,3 +235,30 @@ class ContactSerailizer(ModelSerializer):
             'message',
             'date',
         ]
+
+
+
+
+# ! Serializer For Booking Destination
+class BookingSerializer(ModelSerializer):
+    class Meta:
+        model=Booking
+        fields=[
+            'id',
+            'fullname',
+            'email',
+            'contact_no',
+            'group_size',
+            'message',
+            'date',
+        ]
+
+    def create(self, validated_data):
+        """
+        Over riding the create method 
+        """
+        destination_pk=self.context['destination_pk']
+        return Booking.objects.create(
+            destination_id=destination_pk,
+            **validated_data
+        )

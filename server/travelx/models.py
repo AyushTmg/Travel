@@ -1,19 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.validators import RegexValidator
-from django.core.exceptions import ValidationError
-
-
-
-
-# !Custom Validation Method 
-def validate_exact_length(value):
-        """
-        Custom Validation Function to validate the length 
-        """
-        if len(value) != 10:
-            raise ValidationError('Contact number must be exactly 10 digits.')
-
 
 
 
@@ -21,7 +8,6 @@ def validate_exact_length(value):
 class Destination(models.Model):
     title=models.CharField(max_length=255)
     description=models.TextField()
-    image=models.ImageField(upload_to="destination/")
     price=models.IntegerField(
         validators=[MinValueValidator(50)]
     )
@@ -29,6 +15,9 @@ class Destination(models.Model):
     group_size=models.CharField(max_length=150)
     location=models.CharField(max_length=255)
     show_in_home=models.BooleanField(default=False)
+    is_active=models.BooleanField(default=True)
+
+    
 
 
     def __str__(self) -> str:
@@ -40,12 +29,127 @@ class Destination(models.Model):
 
 
 
+# ! Destination Images 
+class DestinationImage(models.Model):
+    image=models.ImageField(upload_to="destination/")
+    destination=models.ForeignKey(
+        Destination,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    is_active=models.BooleanField(default=True)
+
+
+
+    def __str__(self) -> str:
+        """  
+        String Representation For Destination Image Model 
+        """
+        return f"Image for {self.destination.title}"
+
+
+
+
+# ! Destination Booking Model 
+class Booking(models.Model):
+    fullname = models.CharField(max_length=255)
+    email = models.EmailField()
+    contact_no = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(r'^\d{10}$', 'Contact number must be exactly 10 digits and numeric.'),
+        ]
+    )
+    group_size = models.CharField(max_length=255)
+    message = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+    destination = models.ForeignKey(
+        Destination,
+        on_delete=models.PROTECT,
+        related_name='bookings'
+    )
+
+
+    def __str__(self) -> str:
+        """
+        String Representation of the Booking
+        """
+        return f"Booking by {self.fullname} on {self.date}"
+    
+
+
+
+# ! Destination Inclusion Model 
+class Inclusion(models.Model):
+    title=models.CharField(max_length=255)
+    destination=models.ForeignKey(
+        Destination,
+        on_delete=models.CASCADE,
+        related_name='inclusions'
+    )
+    is_active=models.BooleanField(default=True)
+
+
+
+    def __str__(self) -> str:
+        """
+        String Representation of the Inclustion Of Destination
+        """
+        return self.title
+    
+
+
+
+# ! Destination Exclusion Model 
+class Exclusion(models.Model):
+    title=models.CharField(max_length=255)
+    destination=models.ForeignKey(
+        Destination,
+        on_delete=models.CASCADE,
+        related_name='exclusions'
+    )
+    is_active=models.BooleanField(default=True)
+
+
+
+    def __str__(self) -> str:
+        """
+        String Representation of the Inclustion Of Exclusion
+        """
+        return self.title
+    
+
+
+
+# ! Itinerary Model 
+class Itinerary(models.Model):
+    day_number = models.PositiveIntegerField()
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    destination = models.ForeignKey(
+        Destination,
+        on_delete=models.CASCADE,
+        related_name='itineraries'
+    )
+    is_active=models.BooleanField(default=True)
+
+
+
+    def __str__(self) -> str:
+        """
+        String Representation for Itinerary Model 
+        """
+        return f"Day {self.day_number}: {self.title}"
+
+
 
 
 # ! Gallery Model
 class Gallery(models.Model):
     title=models.CharField(max_length=255)
     image=models.ImageField(upload_to='gallery_image/')
+    is_active=models.BooleanField(default=True)
+    
 
     
     def __str__(self) -> str:
@@ -71,15 +175,14 @@ class Contact(models.Model):
     message=models.TextField()
     date=models.DateTimeField(auto_now_add=True)
 
+
+
     def __str__(self) -> str:
         """
-        String Representation of the Contact
+        String Representation of the Contact Model 
         """
-        return self.fullname
+        return f"{self.fullname}-{self.subject}"
     
-
-
-
 
 
 
@@ -88,6 +191,15 @@ class AboutUs(models.Model):
     title=models.CharField(max_length=255)
     description=models.TextField()
     image=models.ImageField(upload_to='about_us/')
+    is_active=models.BooleanField(default=True)
+
+
+
+    def __str__(self) -> str:
+        """
+        String Representation of the AboutUs Model
+        """
+        return self.title
 
 
 
@@ -99,6 +211,8 @@ class Testimonial(models.Model):
     description=models.TextField()
     image=models.ImageField(upload_to='testimonial/')
     show_in_home=models.BooleanField(default=False)
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -117,7 +231,7 @@ class Blog(models.Model):
     image=models.ImageField(upload_to='blog/')
     show_in_home=models.BooleanField(default=False)
     date=models.DateField(auto_now_add=True)
-
+    is_active=models.BooleanField(default=True)
 
 
     def __str__(self) -> str:
@@ -131,6 +245,7 @@ class Blog(models.Model):
 
 # ! Site Settings Model 
 class SiteSetting(models.Model):
+    site_name=models.CharField(max_length=255)
     site_logo=models.ImageField(upload_to='site')
     contact_no = models.CharField(
         max_length=10,
@@ -147,6 +262,7 @@ class SiteSetting(models.Model):
     instagram_link=models.CharField(max_length=255,blank=True,null=True)
     linkedin_link=models.CharField(max_length=255,blank=True,null=True)
     twitter_link=models.CharField(max_length=255,blank=True,null=True)
+    is_active=models.BooleanField(default=True)
 
 
 
@@ -155,6 +271,7 @@ class SiteSetting(models.Model):
 class Banner(models.Model):
     title=models.CharField(max_length=255)
     image=models.ImageField(upload_to='banner/')
+    is_active=models.BooleanField(default=True)
 
 
     def __str__(self) -> str:
