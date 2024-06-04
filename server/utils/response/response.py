@@ -13,7 +13,7 @@ class  CustomResponse:
         """
         return Response({
                 "success":True,
-                "data":[data],
+                "data":data,
                 "message":message
             },
             status=status
