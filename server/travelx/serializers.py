@@ -165,7 +165,7 @@ class SiteSettingSerializer(ModelSerializer):
 
 
 # !Serializer For Listing Banner 
-class BannerListSerializer(ModelSerializer):
+class BannerSerializer(ModelSerializer):
     class Meta:
         model=Banner 
         fields=[
@@ -201,7 +201,6 @@ class BlogListSerializer(ModelSerializer):
             'title',
             'image',
             'date',
-            'show_in_home'
 
         ]
 

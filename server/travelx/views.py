@@ -10,7 +10,6 @@ from .models import (
     Banner,
     Testimonial,
     Blog,
-    Contact
 )
 from .serializers import (
     DestinationListSerializer,
@@ -18,7 +17,7 @@ from .serializers import (
     GallerylistSerializer,
     AboutUsSerializer,
     SiteSettingSerializer,
-    BannerListSerializer,
+    BannerSerializer,
     TestimonialListSerializer,
     BlogListSerializer,
     BlogDetailSerializer,
@@ -26,6 +25,8 @@ from .serializers import (
     BookingSerializer
 
 )
+
+
 from django.http import Http404 
 
 
@@ -37,7 +38,7 @@ from rest_framework.status import (
 from rest_framework.generics import(
     ListAPIView,
     RetrieveAPIView,
-    CreateAPIView
+    CreateAPIView,
 )
 
 
@@ -45,13 +46,18 @@ from rest_framework.generics import(
 
 # ! Destination  List View 
 class DestinationListView(ListAPIView):
-    queryset=Destination.objects.all().prefetch_related('images')
+    queryset=(
+        Destination.objects
+        .filter(is_active=True)
+        .prefetch_related('images')
+    )
     serializer_class=DestinationListSerializer
 
 
     def list(self, request, *args, **kwargs):
         """
-        Over riding the method for custom response 
+        Over riding the method for custom response and retrieving 
+        related banner 
         """
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -62,8 +68,25 @@ class DestinationListView(ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
 
+        try:
+            banner=(
+                Banner.objects
+                .filter(is_active=True)
+                .get(title='destination')
+            )
+            banner_serializer=BannerSerializer(banner)
+        except Banner.DoesNotExist:
+            raise ce(
+                message="Banner Image Doesn't Exist"
+            )
+        
+        data={
+            'banner':banner_serializer.data,
+            'destination':serializer.data,
+        }
+
         return cr.success(
-            data=serializer.data
+            data=data
         )
     
 
@@ -71,12 +94,16 @@ class DestinationListView(ListAPIView):
 
 #! Destination Detail View 
 class DestinationDetailView(RetrieveAPIView):
-    queryset=Destination.objects.all().prefetch_related(
+    queryset=(
+        Destination.objects
+        .filter(is_active=True)
+        .prefetch_related(
         'images',
         'inclusions',
         'exclusions',
         'itineraries'
         )
+    )
     serializer_class=DestinationDetailSerializer
     lookup_field='pk'
 
@@ -147,13 +174,14 @@ class DestinationBookingView(CreateAPIView):
 
 # ! Gallery List View 
 class GalleryListView(ListAPIView):
-    queryset=Gallery.objects.all()
+    queryset=Gallery.objects.filter(is_active=True)
     serializer_class=GallerylistSerializer
 
 
     def list(self, request, *args, **kwargs):
         """
-        Over riding the method for custom response 
+        Over riding the method for custom response  and retrieving 
+        related banner 
         """
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -164,8 +192,25 @@ class GalleryListView(ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
 
+        try:
+            banner=(
+                Banner.objects
+                .filter(is_active=True)
+                .get(title='gallery')
+            )
+            banner_serializer=BannerSerializer(banner)
+        except Banner.DoesNotExist:
+            raise ce(
+                message="Banner Image Doesn't Exist"
+            )
+        
+        data={
+            'banner':banner_serializer.data,
+            'gallery':serializer.data,
+        }
+
         return cr.success(
-            data=serializer.data
+            data=data
         )
     
 
@@ -173,14 +218,39 @@ class GalleryListView(ListAPIView):
 
 # ! AboutUs View 
 class AboutUsView(APIView):
-    # queryset = AboutUs.objects.first()  
+    queryset = (
+        AboutUs.objects
+        .filter(is_active=True)
+        .first()
+    )
     serializer_class = AboutUsSerializer
 
     def get(self,request):
+        """
+        Using get method for custom response  and retrieving 
+        related banner 
+        """
         try:
             serializer = self.serializer_class(self.queryset)
+            try:
+                banner=(
+                    Banner.objects
+                    .filter(is_active=True)
+                    .get(title='about_us')
+                )
+                banner_serializer=BannerSerializer(banner)
+            except Banner.DoesNotExist:
+                raise ce(
+                    message="Banner Image Doesn't Exist"
+                )
+            
+            data={
+                'banner':banner_serializer.data,
+                'about_us':serializer.data,
+            }
+
             return cr.success(
-                data=serializer.data
+                data=data
             )
         
         except Exception as e:
@@ -193,7 +263,11 @@ class AboutUsView(APIView):
 
 # ! SiteSetting View 
 class SiteSettingView(APIView):
-    # queryset=SiteSetting.objects.first()
+    queryset=(
+        SiteSetting.objects
+        .filter(is_active=True)
+        .first()
+    )
     serializer_class=SiteSettingSerializer
 
 
@@ -209,38 +283,12 @@ class SiteSettingView(APIView):
                 message=f"Some error occured {e}"
             )
 
-
-
-
-#! BannerList View 
-class BannerListView(ListAPIView):
-    queryset=Banner.objects.all()
-    serializer_class=BannerListSerializer
-
-
-    def list(self, request, *args, **kwargs):
-        """
-        Over riding the method for custom response 
-        """
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return cr.success(
-            data=serializer.data
-        )
     
-
 
 
 # ! Testimonial View 
 class TestimonialListView(ListAPIView):
-    queryset=Testimonial.objects.all()
+    queryset=Testimonial.objects.filter(is_active=True)
     serializer_class=TestimonialListSerializer
 
 
@@ -266,7 +314,7 @@ class TestimonialListView(ListAPIView):
 
 # ! Blog List View 
 class BlogListView(ListAPIView):
-    queryset= Blog.objects.all()
+    queryset= Blog.objects.filter(is_active=True)
     serializer_class=BlogListSerializer
 
 
@@ -277,14 +325,32 @@ class BlogListView(ListAPIView):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
+
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
 
+        try:
+            banner=(
+                Banner.objects
+                .filter(is_active=True)
+                .get(title='blog')
+            )
+            banner_serializer=BannerSerializer(banner)
+        except Banner.DoesNotExist:
+            raise ce(
+                message="Banner Image Doesn't Exist"
+            )
+        
+        data={
+            'banner':banner_serializer.data,
+            'blogs':serializer.data,
+        }
+
         return cr.success(
-            data=serializer.data
+            data=data
         )
 
 
@@ -292,7 +358,7 @@ class BlogListView(ListAPIView):
 
 # ! Blog Detail View 
 class BLogDetailView(RetrieveAPIView):
-    queryset=Blog.objects.all()
+    queryset=Blog.objects.filter(is_active=True)
     serializer_class=BlogDetailSerializer
     lookup_field='pk'
 
@@ -323,39 +389,54 @@ class BLogDetailView(RetrieveAPIView):
 
 
 
-# !Contact View 
-class ContactView(CreateAPIView):
-    queryset=Contact.objects.all()
-    serializer_class=ContactSerializer
+# ! Contact View 
+class ContactView(APIView):
 
-    def create(self, request, *args, **kwargs):
+    def get(self, request):
+        """  
+        Method For Retreieving Banner Image And Returing Custom Response
         """
-        Over riding the create method for custom response 
-        and calling celery task to send email
-        """
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        validated_data = serializer.validated_data
-
-        data = {
-            'fullname': validated_data.get('fullname'),
-            'contact_no': validated_data.get('contact_no'),
-            'email': validated_data.get('email'),
-            'subject': validated_data.get('subject'),
-            'message': validated_data.get('message'),
-        }
+        try:
+            banner = (
+                Banner.objects
+                .filter(is_active=True)
+                .get(title='contact')
+            )
+            banner_serializer = BannerSerializer(banner)
+            data = {
+                'banner': banner_serializer.data,
+            }
+            return cr.success(
+                data=data
+            )
+        except Banner.DoesNotExist:
+            raise ce(
+                message= "Banner Image Doesn't Exist"
+            )
         
-        self.perform_create(serializer)
 
-        # ! calling celery task 
-        send_contact_mail_task.delay(data)
-
-        return cr.success(
-            message="We've received your message. We will contact you soon",
-            status=HTTP_201_CREATED
-        )
-
+    def post(self, request):
+        """  
+        Method For Posting Contact Detail And Returing Custom Response
+        """
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            data = {
+                'fullname': serializer.validated_data.get('fullname'),
+                'contact_no': serializer.validated_data.get('contact_no'),
+                'email': serializer.validated_data.get('email'),
+                'subject': serializer.validated_data.get('subject'),
+                'message': serializer.validated_data.get('message'),
+            }
+            # ! calling celery task 
+            send_contact_mail_task.delay(data)
+            return cr.success(
+                message= "We've received your message. We will contact you soon"
+                )
+        raise ce(
+                message="Form Data Invalid"
+            )
 
 
 
