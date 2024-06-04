@@ -26,10 +26,10 @@ const axiosBaseQuery =
 // Create the API slice
 const api = createApi({
   reducerPath: "api",
-  baseQuery: axiosBaseQuery({ baseUrl: "https://dummyjson.com" }), // Set your base URL here
+  baseQuery: axiosBaseQuery({ baseUrl: "http://127.0.0.1:8000/api" }), // Set your base URL here
   endpoints: (builder) => ({
     getSomeData: builder.query({
-      query: () => ({ url: "/products", method: "GET" }),
+      query: () => ({ url: "/about_us/", method: "GET" }),
     }),
     // Add other endpoints here
   }),
