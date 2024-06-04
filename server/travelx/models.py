@@ -15,6 +15,9 @@ class Destination(models.Model):
     group_size=models.CharField(max_length=150)
     location=models.CharField(max_length=255)
     show_in_home=models.BooleanField(default=False)
+    is_active=models.BooleanField(default=True)
+
+    
 
 
     def __str__(self) -> str:
@@ -34,6 +37,8 @@ class DestinationImage(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -82,6 +87,8 @@ class Inclusion(models.Model):
         on_delete=models.CASCADE,
         related_name='inclusions'
     )
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -101,6 +108,8 @@ class Exclusion(models.Model):
         on_delete=models.CASCADE,
         related_name='exclusions'
     )
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -122,6 +131,8 @@ class Itinerary(models.Model):
         on_delete=models.CASCADE,
         related_name='itineraries'
     )
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -137,6 +148,8 @@ class Itinerary(models.Model):
 class Gallery(models.Model):
     title=models.CharField(max_length=255)
     image=models.ImageField(upload_to='gallery_image/')
+    is_active=models.BooleanField(default=True)
+    
 
     
     def __str__(self) -> str:
@@ -163,6 +176,7 @@ class Contact(models.Model):
     date=models.DateTimeField(auto_now_add=True)
 
 
+
     def __str__(self) -> str:
         """
         String Representation of the Contact Model 
@@ -177,6 +191,8 @@ class AboutUs(models.Model):
     title=models.CharField(max_length=255)
     description=models.TextField()
     image=models.ImageField(upload_to='about_us/')
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -195,6 +211,8 @@ class Testimonial(models.Model):
     description=models.TextField()
     image=models.ImageField(upload_to='testimonial/')
     show_in_home=models.BooleanField(default=False)
+    is_active=models.BooleanField(default=True)
+
 
 
     def __str__(self) -> str:
@@ -213,6 +231,7 @@ class Blog(models.Model):
     image=models.ImageField(upload_to='blog/')
     show_in_home=models.BooleanField(default=False)
     date=models.DateField(auto_now_add=True)
+    is_active=models.BooleanField(default=True)
 
 
     def __str__(self) -> str:
@@ -243,6 +262,7 @@ class SiteSetting(models.Model):
     instagram_link=models.CharField(max_length=255,blank=True,null=True)
     linkedin_link=models.CharField(max_length=255,blank=True,null=True)
     twitter_link=models.CharField(max_length=255,blank=True,null=True)
+    is_active=models.BooleanField(default=True)
 
 
 
@@ -251,6 +271,7 @@ class SiteSetting(models.Model):
 class Banner(models.Model):
     title=models.CharField(max_length=255)
     image=models.ImageField(upload_to='banner/')
+    is_active=models.BooleanField(default=True)
 
 
     def __str__(self) -> str:
