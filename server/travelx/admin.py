@@ -12,7 +12,8 @@ from .models import(
     Testimonial, 
     Blog, 
     SiteSetting, 
-    Banner
+    Banner,
+    Slider
 )
 
 
@@ -160,5 +161,19 @@ class SiteSettingAdmin(admin.ModelAdmin):
 class BannerAdmin(admin.ModelAdmin):
     list_display=[
         'title',
+        'image'
     ]
-    list_filter=['title']
+    list_filter=['image']
+
+
+
+
+# ! Home Page Slider Admin
+@admin.register(Slider)
+class SliderAdmin(admin.ModelAdmin):
+    list_display=[
+        'heading',
+        'sub_heading',
+        'image',
+        'is_active'
+    ]
