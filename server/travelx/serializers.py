@@ -11,12 +11,27 @@ from .models import (
     Banner,
     Testimonial,
     Blog,
-    Contact
+    Contact,
+    Slider
 )
 
 
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer 
+
+
+
+
+# ! Serializer For Slider Section 
+class SliderSerializer(ModelSerializer):
+    class Meta:
+        model=Slider
+        fields=[
+            'id',
+            'heading',
+            'sub_heading',
+            'image'
+        ]
 
 
 

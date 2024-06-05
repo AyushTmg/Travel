@@ -1,6 +1,7 @@
 from django.urls import path 
 
 from .views import (
+    HomeView,
     DestinationListView,
     DestinationDetailView,
     GalleryListView,
@@ -11,11 +12,11 @@ from .views import (
     BLogDetailView,
     ContactView,
     DestinationBookingView
-
 )
 
 
 urlpatterns = [
+    path('home/',HomeView.as_view(),name='index'),
     path('destinations/',DestinationListView.as_view(),name="destination-list"),
     path('destinations/<str:pk>/',DestinationDetailView.as_view(),name='destination-detail'),
     path('destinations/<str:pk>/bookings/',DestinationBookingView.as_view(),name='destination-booking'),
