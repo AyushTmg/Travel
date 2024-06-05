@@ -26,9 +26,9 @@ class  CustomResponse:
         This custom method is used to return error
         response 
         """
-        return Response({
+        return Response([{
             'success':False,
             "message":message
-        },
+        }],
         status=status
     )
