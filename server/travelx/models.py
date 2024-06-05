@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.core.validators import RegexValidator
 
 
@@ -279,6 +279,20 @@ class Banner(models.Model):
         String Representation of the Banner
         """
         return self.title 
+
+
+
+# ! Home Page Slider Section 
+class Slider(models.Model):
+    heading=models.CharField(max_length=255)
+    sub_heading=models.CharField(max_length=255)
+    image=models.ImageField(upload_to='slider/')
+    is_active=models.BooleanField(default=True)
+    
+
+
+    def __str__(self) -> str:
+        return self.heading
 
 
     

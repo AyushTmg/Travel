@@ -1,4 +1,5 @@
 from .tasks import send_contact_mail_task
+from .pagination import DefaultPagination
 from utils.response.response import CustomResponse as cr 
 from utils.exception.exception import CustomException as ce
 from .models import (
@@ -10,6 +11,7 @@ from .models import (
     Banner,
     Testimonial,
     Blog,
+    Slider
 )
 from .serializers import (
     DestinationListSerializer,
@@ -22,15 +24,17 @@ from .serializers import (
     BlogListSerializer,
     BlogDetailSerializer,
     ContactSerializer,
-    BookingSerializer
-
+    BookingSerializer,
+    SliderSerializer
 )
 
 
 from django.http import Http404 
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 from rest_framework.views import APIView
+from rest_framework.filters import SearchFilter
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_404_NOT_FOUND
@@ -44,6 +48,65 @@ from rest_framework.generics import(
 
 
 
+# ! Home View 
+class HomeView(ListAPIView):
+    queryset=Destination.objects.filter(
+        is_active=True,
+        show_in_home=True
+    ).prefetch_related('images')[:6]
+    serializer_class=DestinationListSerializer
+
+
+    def list(self, request, *args, **kwargs):
+        """
+        Over riding the method for custom response and retrieving 
+        related banner 
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        blogs=Blog.objects.filter(
+            is_active=True,
+            show_in_home=True
+        )[:8]
+        blog_serializer=BlogListSerializer(
+            blogs,
+            many=True
+        )
+
+        about_us=AboutUs.objects.filter(
+            is_active=True
+        )[0]
+        about_us_serializer=AboutUsSerializer(about_us)
+
+        sliders=Slider.objects.filter(
+            is_active=True
+        )
+        slider_serializer=SliderSerializer(
+            sliders,
+            many=True
+        )
+        
+        data={
+            'sliders':slider_serializer.data,
+            'about_us':about_us_serializer.data,
+            'destinations':serializer.data,
+            'blogs':blog_serializer.data,
+        }
+
+        return cr.success(
+            data=data
+        )
+
+
+
+
 # ! Destination  List View 
 class DestinationListView(ListAPIView):
     queryset=(
@@ -52,6 +115,33 @@ class DestinationListView(ListAPIView):
         .prefetch_related('images')
     )
     serializer_class=DestinationListSerializer
+    filter_backends=[SearchFilter]
+    search_fields=['title','duration']
+    pagination_class=DefaultPagination
+
+
+    
+    def get_paginated_response(self, data):
+        if not data: 
+            try:
+                banner = (
+                    Banner.objects
+                    .filter(is_active=True)
+                    .get(title='destination')
+                )
+                banner_serializer = BannerSerializer(banner)
+                data={    
+                    'banner': banner_serializer.data,
+                    'destinations':"No Data Found"
+                }
+                return cr.success(
+                    data=data
+                )
+            except Banner.DoesNotExist:
+                raise ce(
+                    message="Banner Image Doesn't Exist"
+                )
+        return super().get_paginated_response(data)
 
 
     def list(self, request, *args, **kwargs):
@@ -82,7 +172,7 @@ class DestinationListView(ListAPIView):
         
         data={
             'banner':banner_serializer.data,
-            'destination':serializer.data,
+            'destinations':serializer.data,
         }
 
         return cr.success(
@@ -206,7 +296,7 @@ class GalleryListView(ListAPIView):
         
         data={
             'banner':banner_serializer.data,
-            'gallery':serializer.data,
+            'galleries':serializer.data,
         }
 
         return cr.success(
